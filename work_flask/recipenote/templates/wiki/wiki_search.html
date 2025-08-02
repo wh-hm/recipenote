@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div>
+    <h1 class="my-4">Wikipediaの検索</h1>
+    <form method="POST" action="{{ url_for('wiki.search') }}" novalidate>
+        {{ form.hidden_tag() }}
+
+        <div class="row justify-content-around align-items-end">
+            <div class="mb-3 col-10-lg">
+                {{ form.keyword.label(class="form-label") }}
+                {{ form.keyword(class="form-control ") }}
+            </div>
+            <div class="mb-3 col-1-lg">
+                {{ form.submit(class="btn btn-primary") }}
+            </div>
+        </div>
+    </form>
+    <a href="{{ url_for('recipe.index') }}" class="btn btn-secondary mt-2">戻る</a>
+</div>
+{% endblock %}

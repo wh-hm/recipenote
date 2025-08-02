@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div>
+    <div class="my-4">
+        {% if error %}
+            <h2>{{ error }}</h2>
+        {% else %}
+            <div class="row mb-3">
+                <div class="col-9">
+                    <h2>検索結果： "{{ search_word }}"</h2>
+                </div>
+                <div class="col-3 d-flex justify-content-end">
+                    <div>
+                    <a href="{{ url_for('recipe.index') }}" class="btn btn-secondary">戻る</a>
+                    </div>
+                </div>
+            </div>
+            <form method="POST" action="{{ url_for('recipe.search') }}">
+                <div class="row my-4 d-flex justify-content-md-around align-items-md-end">
+                    <div class="col-md-10 col-12">
+                        <input type="text" name="keyword" placeholder="レシピ名や材料で検索" value="{{search_word}}" class="w-100 py-1 px-3">
+                    </div>
+                    <div class="d-flex justify-content-end mt-2 mt-md-0 col-md-2 col-12">
+                        <button type="submit" class="btn btn-secondary col-xl-1 col-3 col-sm-1 w-100">検索</button>
+                    </div>
+                </div>
+            </form>
+            
+            {%if not form%}
+                <p>{{search_word}}を含むレシピや材料はありません。</p>
+            {%else%}
+                <ul class="list-group">
+                    {%for recipe in form%}
+                        <li class="py-3 list-group-item d-flex justify-content-sm-between row">
+                            <div class="col-md-10 col-sm-9 col-xs-12">{{ recipe.title }}</div>
+                            <div class="col-md-2 col-sm-3 col-xs-12 d-flex justify-content-end">
+                                <div class="me-2 col-sm-6 ">
+                                    <a href="{{ url_for('recipe.update', recipe_id=recipe.id) }}" class="btn-sm btn w-100 btn-primary link-underline-opacity-0">編集</a>
+                                </div>
+                                <div class="col-sm-6">
+                                    <a href="{{ url_for('recipe.delete', recipe_id=recipe.id) }}" class="btn-sm btn w-100 btn-secondary link-underline-opacity-0">削除</a>
+                                </div>
+                            </div>
+                        </li>
+                    {%endfor%}
+                </ul>  
+            {%endif%}
+        {% endif %}
+    </div>
+    <!-- メモに追加ボタン -->
+    
+</div>
+{% endblock %}

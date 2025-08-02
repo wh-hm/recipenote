@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>レシピノート</h1>
+    {% if recipes == [] %}
+        <p>レシピは登録されていません</p>
+    {% else %}
+
+        <form method="POST" action="{{ url_for('recipe.search') }}">
+            <div class="row my-4 d-flex justify-content-md-around align-items-md-end">
+                <div class="col-md-10 col-12">
+                    <input type="text" name="keyword" placeholder="レシピ名や材料で検索" value="{{ request.args.get('keyword', '') }}" class="w-100 py-1 px-3">
+                </div>
+                <div class="d-flex justify-content-end mt-2 mt-md-0 col-md-2 col-12">
+                    <button type="submit" class="btn btn-secondary col-xl-1 col-3 col-sm-1 w-100">検索</button>
+                </div>
+            </div>
+        </form>
+
+
+        
+        <ul id="recipe_list" class="list-group">
+            {% for recipe in recipes %}
+                <li class="py-3 list-group-item d-flex justify-content-sm-between row">
+                    <div class="col-md-10 col-sm-9 col-xs-12">{{ recipe.title }}</div>
+                    <div class="col-md-2 col-sm-3 col-xs-12 d-flex justify-content-end">
+                        <div class="me-2 col-sm-6 ">
+                            <a href="{{ url_for('recipe.update', recipe_id=recipe.id) }}" class="btn btn-sm w-100 btn-primary link-underline-opacity-0">編集</a>
+                        </div>
+                        <div class="col-sm-6">
+                            <a href="{{ url_for('recipe.delete', recipe_id=recipe.id) }}" class="btn btn-sm w-100 btn-secondary link-underline-opacity-0" onclick="return confirm('本当に削除しますか？');">削除</a>
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+
+    {% endif %}
+    <!-- ▼▼▼▼▼ flashメッセージ ▼▼▼▼▼ -->
+    {% for message in get_flashed_messages() %}
+    <div style="color: blue;">
+        {{ message }}
+    </div>
+    {% endfor %}
+    <!-- ▲▲▲▲▲ flashメッセージ ▲▲▲▲▲ -->
+    <a href="{{ url_for('recipe.create') }}" class="btn btn-success mt-4">新しいレシピノートを作成</a>
+{% endblock %}

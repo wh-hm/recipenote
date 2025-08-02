@@ -1,0 +1,726 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+<h1 class="mb-3">新しいレシピノートを作成</h1>
+{% from "_formhelpers.html" import render_field %}
+<form method="POST" action="{{ url_for('recipe.create') }}" novalidate enctype="multipart/form-data">
+
+    <!--エラー表示してくれるの-->
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul class="alert alert-warning ">
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+
+
+    <!---->
+
+
+    {{ form.hidden_tag() }}
+    <!-- タイトル入力 -->
+    <h2 class="col-12 col-md-6">{{ form.title(class_="w-100 my-2 fs-5 py-1 px-3") }}</h2>
+    {% for error in form.title.errors %}
+        <div class="form-text text-danger small fs-5">{{ error }}</div>
+    {% endfor %}
+
+    <!---->
+
+
+    <!-- 画像アップロード -->
+    <div class="mb-3">
+        <h2 class="my-4"><label for="file">レシピ画像</label></h2>
+            <input type="file" id="file" name="file" class="form-control">
+            
+            <div class="text-center w-75 m-auto">
+                <img id="preview" src="#" alt="レシピ画像" class="my-3 w-100">
+                
+            </div>
+            <div class="d-flex justify-content-start"><button type="button" id="delete_file" class="btn btn-danger col-xl-2 ">ファイルの削除</button></div>
+        
+    </div>
+    <!---->
+
+
+
+    <!-- 材料リスト -->
+    <div id="foods_id" class="mt-5">
+        <div class="row">
+            <div class="col-xl-7 col-md-8 d-none d-md-block"><h2>材料:</h2></div>
+            <div class="col-xl-4 col-md-4 d-none d-md-block"><h2>分量:</h2></div>
+        </div>
+
+        {% if foods_list and quantity_list %}
+        {% for i in range(foods_list|length) %}
+        <div class="foods_add_class row align-items-end d-flex my-4" id="food{{ i + 1 }}">
+            <div class="col-xl-7 col-md-8 d-flex justify-content-end ">
+                <label for="foods{{ i + 1 }}" class="col-md-1" id="foods_label{{ i + 1 }}">{{ i + 1 }}.</label>
+                <div class="d-block d-md-none col-2">材料</div>
+                <div class="col-10 col-md-11">
+                    <input type="text" id="foods{{ i + 1 }}" name="foods[]" class="w-100 py-1 px-3" value="{{ foods_list[i] }}">
+                </div>
+            </div>
+                
+            <div class="col-xl-4 col-md-4 col-12 d-flex justify-content-end my-2 my-md-0">
+                <div class="d-block d-md-none col-2">分量</div>
+                <div class="col-10 col-md-12">
+
+                    <input type="text" id="quantity_id{{ i + 1 }}" name="quantity[]" class="w-100 py-1 px-3"
+                    value="{{ quantity_list[i] }}">
+                </div>
+            </div>
+            {% if i != 0 %}
+            <div class="my-3 my-xl-0 col-xl-1 col-md-12 d-flex justify-content-end ">
+                <button type="button" class="delete_food_btn btn btn-danger " id="delete{{ i + 1 }}">削除</button>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="foods_add_class row align-items-end d-flex my-4" id="food1">
+            <div class="col-xl-7 col-md-8 d-flex justify-content-end ">
+                <label for="foods1" class="col-md-1" id="foods_label1">1.</label>
+                
+                <div class="d-block d-md-none col-2">材料</div>
+                <div class="col-10 col-md-11"><input type="text" id="foods1" name="foods[]" class="w-100 py-1 px-3 "></div>
+            </div>
+            <div class="col-xl-4 col-md-4 col-12 d-flex justify-content-end my-2 my-md-0">
+                <div class="d-block d-md-none col-2">分量</div>
+                <div class="col-10 col-md-12"><input type="text" id="quantity_id1" name="quantity[]" class="w-100 py-1 px-3"></div>
+            </div>
+        </div>
+        {% endif %}
+
+
+    </div>
+
+    <button type="button" id="add_foods" style="margin-top: 10px;" class="btn btn-secondary my-3">材料を追加</button>
+
+
+
+    <!-- 作り方リスト -->
+    <div id="process">
+        <h2 class="mt-5">作り方:</h2>
+        {% if process_list %}
+        {% for i in range(process_list|length) %}
+        <div class="process_add_class align-items-end row d-flex" id="process_div{{ i + 1 }}">
+            <div class="col-xl-11 col-md-12">
+                <label for="process_text{{ i + 1 }}" class="me-2" id="process_label{{ i + 1 }}">{{ i + 1 }}.</label>
+                <textarea id="process_text{{ i + 1 }}" name="process_text[]" class="w-100 py-1 px-3">{{ process_list[i] }}</textarea>
+                {% if i != 0 %}
+                        <div class="my-3 my-xl-0 col-xl-1 col-md-12 d-flex justify-content-end ">
+                            <button type="button" class="delete_process_btn btn btn-danger" id="process_delete{{ i + 1 }}">削除</button>
+                        </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="process_add_class align-items-end row d-flex" id="process_div1">
+            <div class="col-xl-11 col-md-12">
+                
+                <label for="process_text1" id="process_label1" class="me-2">1.</label>
+            
+                <textarea id="process_text1" name="process_text[]" class="w-100 py-1 px-3"></textarea>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+
+    <button id="add_process" type="button" class="btn btn-secondary my-3">作り方を追加</button>
+
+
+    <!-- メモ・説明 -->
+    <h2 class="mt-5">{{ render_field(form.content, rows=5, class_="w-100 fs-6 py-1 px-3") }}</h2>
+    <!---->
+
+    <div class="d-flex justify-content-around align-items-center my-5">
+        <div><a href="{{ url_for('recipe.index') }}" class="btn btn-lg btn-secondary">戻る</a></div>
+        <div>{{ form.submit(class_="btn btn-primary  btn-lg px-5 py-3")}}</div>
+    </div>
+
+    
+</form>
+
+
+</div>
+</div>
+
+
+<!--エラーハンドリングをで返ってきたときに削除ボタンが押せなくなるのでidじゃなくてclass指定する-->
+<script>
+
+    window.onload = function(){
+        preview = document.getElementById("preview")
+        preview.style.display = "none"
+        delete_file = document.getElementById("delete_file")
+        delete_file.style.display = "none"
+    }
+
+    document.getElementById("delete_file").addEventListener("click", function () {
+
+        let fileInput = document.getElementById("file");
+        let preview = document.getElementById("preview");
+        let delete_file = document.getElementById("delete_file");
+
+        fileInput.value = ""; // ファイル選択解除
+        preview.src = "";
+        preview.style.display = "none";
+        delete_file.style.display = "none";
+    });
+
+
+
+
+    // 材料、分量削除ボタン
+    document.addEventListener("click", function (event) {
+        if (event.target && event.target.classList.contains("delete_food_btn")) {
+            let delete_count = parseInt(event.target.id.replace("delete", ""));
+            //event.target: クリックされた 実際の要素（ボタン）
+            //.classList.contains("delete_process_btn"): その要素に delete_process_btn クラスが含まれているかチェック
+            //➤ つまり「削除ボタンが押された時だけ中の処理をする」
+
+
+            let div_name = document.getElementById("food" + delete_count);
+            if (div_name) div_name.remove();
+
+            for (let a = delete_count; a <= count_food; a++) {
+                let big_num = a + 1;
+                let replace_div = document.getElementById("food" + big_num);
+                if (!replace_div) continue;
+
+                replace_div.id = "food" + a;
+
+                let replace_label = document.getElementById("foods_label" + big_num);
+                if (replace_label) {
+                    replace_label.innerHTML = a + ".";
+                    replace_label.htmlFor = "foods" + a;
+                    replace_label.id = "foods_label" + a;
+                }
+
+                let replace_input = document.getElementById("foods" + big_num);
+                if (replace_input) replace_input.id = "foods" + a;
+
+                let replace_quantity = document.getElementById("quantity_id" + big_num);
+                if (replace_quantity) replace_quantity.id = "quantity_id" + a;
+
+                let replace_btn = document.getElementById("delete" + big_num);
+                if (replace_btn) {
+                    replace_btn.innerHTML = "削除";
+                    replace_btn.id = "delete" + a;
+                    replace_btn.className = "btn btn-danger"
+                }
+            }
+
+            count_food--;
+        }
+    });
+
+    //材料、分量追加ボタン
+
+    document.getElementById("add_foods").addEventListener("click", function () {
+
+        var food_num_now = document.querySelectorAll(".foods_add_class").length;
+        count_food = food_num_now + 1;
+        var div = document.createElement('div');
+        div.className = "foods_add_class row align-items-end d-flex my-4";
+        
+        div.id = "food" + count_food;
+
+        let foods_list_div = document.createElement("div");
+        foods_list_div.className = "col-xl-7 col-md-8 d-flex justify-content-end "
+
+
+        let foodes_label = document.createElement("label");
+        foodes_label.setAttribute('for', "foods" + count_food);
+        foodes_label.id = "foods_label" + count_food;
+        foodes_label.className = "col-md-1"
+        foodes_label.textContent = count_food + ".";
+
+        let foodes_h2 = document.createElement("div")
+        foodes_h2.className = "d-block d-md-none col-2"
+        foodes_h2.innerHTML = "材料"
+        let div_2 = document.createElement("div")
+        div_2.className = "col-10 col-md-11"
+        
+
+
+        let foods_new = document.createElement("input");
+        foods_new.type = "text"
+        foods_new.name = "foods[]";
+        foods_new.id = "foods" + count_food;
+        foods_new.className = "w-100 py-1 px-3"
+        var bigFoodDiv = document.getElementById("foods_id");
+
+        div_2.append(foods_new)
+        foods_list_div.append(foodes_label);
+        foods_list_div.append(foodes_h2)
+        foods_list_div.append(div_2);
+        div.append(foods_list_div)
+
+        let quantity_new = document.createElement('input');
+        quantity_new.name = "quantity[]";
+        quantity_new.type = "text"
+        quantity_new.id = "quantity_id" + count_food
+        quantity_new.className = "w-100 py-1 px-3"
+        let div_quantity = document.createElement("div")
+        div_quantity.className = "col-xl-4 col-md-4 col-12 d-flex justify-content-end my-2 my-md-0"
+
+
+        let div_quantity_h2 = document.createElement("div")
+        div_quantity_h2.className = "d-block d-md-none col-2"
+        div_quantity_h2.innerHTML = "分量"
+    
+        div_quantity.append(div_quantity_h2)
+
+        div_quantity.append(quantity_new);
+        div.append(div_quantity)
+
+
+        let delete_btn = document.createElement("button");
+        //delete_btn.innerHTML = "材料" + count_food + "を削除";
+        delete_btn.innerHTML = "削除";
+        delete_btn.id = "delete" + count_food;
+        delete_btn.type = "button";
+        delete_btn.className = "btn btn-danger"
+
+
+        let delete_btn_div = document.createElement("div")
+        delete_btn_div.className = "my-3 my-xl-0 col-xl-1 col-md-12 d-flex justify-content-end "
+        delete_btn_div.append(delete_btn)
+        delete_btn.addEventListener("click", event => {
+            //alert(event.target.id)
+            delete_count = parseInt(event.target.id.replace("delete", ""));
+
+
+            //alert(div_name);
+            div_name = document.getElementById("food" + delete_count)
+            //alert(div_name);
+
+
+            div_name.remove()
+            //alert(delete_count)
+            //alert(count_food)
+            for (let a = delete_count; a <= count_food; a++) {
+                //alert(parseInt(a) + 1);
+                let big_num = parseInt(a) + 1;
+                let small_num = parseInt(a) - 1;
+
+                //alert("wa");
+
+                let replace_label = document.getElementById("foods_label" + big_num);
+                if (!replace_label) {
+                    continue
+                }
+                //alert(replace_label);
+                replace_label.innerHTML = a + ".";
+                replace_label.htmlFor = "foods" + a;
+                replace_label.id = "foods_label" + a;
+                //alert("wa");
+
+                let replace_div = document.getElementById("food" + big_num)
+                replace_div.id = "food" + a;
+
+                let replace_input_food = document.getElementById("foods" + big_num);
+                replace_input_food.id = "foods" + a;
+
+
+                let replace_quantity = document.getElementById("quantity_id" + big_num);
+                replace_quantity.id = "quantity_id" + a;
+
+                let replace_btn = document.getElementById("delete" + big_num)
+                //delete_btn.innerHTML = "材料" + a + "を削除";
+                replace_btn.innerHTML = "削除";
+                replace_btn.id = "delete" + a;
+                replace_btn.className = "btn btn-danger"
+
+
+
+            }
+
+            count_food = count_food - 1;
+        });
+        div.append(delete_btn_div);
+        bigFoodDiv.append(div);
+    });
+
+
+
+    // fileをアップロードするやつ
+    document.getElementById("file").addEventListener("change", function (event) {
+        const file = event.target.files[0];
+        const preview = document.getElementById("preview");
+        var delete_file = document.getElementById("delete_file")
+
+        if (file && file.type.startsWith("image/")) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+                preview.style.display = "block";
+                delete_file.style.display = "block";
+            }
+            reader.readAsDataURL(file);
+        } else {
+            preview.src = "#";
+            preview.style.display = "none";
+            delete_file.style.display = "none"
+        }
+    });
+
+
+    //作り方の追加
+    document.getElementById("add_process").addEventListener("click", function () {
+        var process_num_now = document.querySelectorAll(".process_add_class").length;
+        process_count = process_num_now + 1;
+
+        var div_process = document.createElement('div');
+        div_process.className = "process_add_class row align-items-end d-flex my-3";
+        div_process.id = "process_div" + process_count;
+
+
+        var div_process_small = document.createElement("div");
+        div_process_small.className = "col-xl-11 col-md-12"
+
+        let process_label = document.createElement("label");
+        process_label.setAttribute('for', "process_text" + process_count);
+        process_label.id = "process_label" + process_count;
+        process_label.className = "me-2"
+        process_label.textContent = process_count + ".";
+
+
+        var bigProcess = document.getElementById("process");
+
+        let add_process_list = document.createElement("textarea");
+        add_process_list.id = "process_text" + process_count;
+        add_process_list.className = "w-100 py-1 px-3"
+        add_process_list.name = "process_text[]";
+
+        var div_delete_process_btn = document.createElement("div");
+        div_delete_process_btn.className = "my-3 my-xl-0 col-xl-1 col-12 d-flex justify-content-end "
+
+        let delete_process_btn = document.createElement("button");
+        //delete_process_btn.innerHTML = "作り方" + process_count + "を削除";
+        delete_process_btn.innerHTML = "削除";
+        delete_process_btn.className = "btn btn-danger"
+        delete_process_btn.id = "process_delete" + process_count;
+        delete_process_btn.type = "button";
+        delete_process_btn.addEventListener("click", event => {
+            //alert(event.target.id)
+            let delete_process_count = parseInt(event.target.id.replace("process_delete", ""));
+
+            let div_name = document.getElementById("process_div" + delete_process_count)
+            //alert("process_div" + delete_process_count)
+            div_name.remove()
+            for (let a = delete_process_count; a <= process_count; a++) {
+                //alert(parseInt(a) + 1);
+                let big_num = parseInt(a) + 1;
+                let small_num = parseInt(a) - 1;
+
+                let div_name = document.getElementById("process_div" + big_num);
+                if (!div_name) {
+                    continue
+                }
+                div_name.id = "process_div" + a;
+
+                let textarea_id = document.getElementById("process_text" + big_num);
+                textarea_id.id = "process_text" + a;
+
+                let delete_btn = document.getElementById("process_delete" + big_num);
+                delete_btn.id = "process_delete" + a;
+                //delete_btn.innerHTML = "作り方" + a + "を削除"
+                delete_btn.innerHTML = "削除"
+                delete_btn.className = "btn btn-danger"
+
+                let replace_label = document.getElementById("process_label" + big_num);
+                replace_label.id = "process_label" + a;
+                replace_label.textContent = a + ".";
+                replace_label.htmlFor = "process_text" + a;
+
+
+            }
+
+            process_count = process_count - 1;
+        });
+
+
+        div_process_small.append(process_label)
+        div_process_small.append(add_process_list);
+        div_process.append(div_process_small)
+        div_delete_process_btn.append(delete_process_btn)
+        div_process.append(div_delete_process_btn);
+
+        bigProcess.append(div_process);
+    });
+
+    document.addEventListener("click", function (event) {
+        // クリックイベントがどこで発生しても処理される
+        if (event.target && event.target.classList.contains("delete_process_btn")) {
+            // クリックされた要素が「作り方削除ボタン」クラスを持っているか判定
+
+            let delete_process_count = parseInt(event.target.id.replace("process_delete", ""));
+            // ボタンのIDから削除対象の番号を取得（例：process_delete3 → 3）
+
+            let div_name = document.getElementById("process_div" + delete_process_count);
+            if (div_name) div_name.remove();
+            // 対象のdiv要素を取得し、存在すれば削除
+
+            for (let a = delete_process_count; a <= process_count; a++) {
+                let big_num = a + 1;
+                let replace_div = document.getElementById("process_div" + big_num);
+                if (!replace_div) continue;
+                // 次のdivが存在しなければスキップ
+
+                replace_div.id = "process_div" + a;
+                // divのIDを詰める
+
+                let replace_label = document.getElementById("process_label" + big_num);
+                if (replace_label) {
+                    replace_label.innerHTML = a + ".";
+                    replace_label.htmlFor = "process_text" + a;
+                    replace_label.id = "process_label" + a;
+                }
+                // ラベルの番号・関連属性も詰める
+
+                let replace_textarea = document.getElementById("process_text" + big_num);
+                if (replace_textarea) replace_textarea.id = "process_text" + a;
+                // textareaのIDを詰める
+
+                let replace_btn = document.getElementById("process_delete" + big_num);
+                if (replace_btn) {
+                    replace_btn.innerHTML = "削除";
+                    replace_btn.id = "process_delete" + a;
+                    replace_btn.className = "btn btn-danger"
+                }
+                // 削除ボタンのIDと文言を詰める
+            }
+
+            process_count--;
+            // カウントをひとつ減らす
+        }
+    });
+
+
+</script>
+
+
+
+<!--うまくいかなかったので書き直し-->
+<!-- <script>
+        var count_food = document.querySelectorAll(".foods_add_class").length;
+        var delete_btn;
+        var delete_count 
+        var process_count = document.querySelectorAll(".process_add_class").length;
+        preview.style.display = "none";
+
+
+        document.getElementById("file").addEventListener("change", function(event) {
+            const file = event.target.files[0];
+            const preview = document.getElementById("preview");
+
+            if (file && file.type.startsWith("image/")) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = "block";
+                }
+                reader.readAsDataURL(file);
+            } else {
+                preview.src = "#";
+                preview.style.display = "none";
+            }
+        });
+
+        
+        document.getElementById("add_foods").addEventListener("click", function() {
+            //alert('ボタンがクリックされました！');
+            count_food = count_food + 1;
+            var div = document.createElement('div');
+            div.className = "foods_add_class row";
+            div.id = "food" + count_food;
+
+            let foods_list_div = document.createElement("div");
+            foods_list_div.className = "col-xl-7 d-flex justify-content-between"
+
+            
+            let foodes_label = document.createElement("label");
+            foodes_label.setAttribute('for', "foods" + count_food);
+            foodes_label.id = "foods_label" + count_food; 
+            foodes_label.className = "me-2"
+            foodes_label.textContent  = count_food + ".";
+            
+
+            let foods_new = document.createElement("input");
+            foods_new.type = "text"
+            foods_new.name = "foods[]";
+            foods_new.id = "foods" + count_food;
+            foods_new.className = "w-100"
+            var bigFoodDiv = document.getElementById("foods_id");
+            
+            foods_list_div.append(foodes_label);
+            foods_list_div.append(foods_new);
+            div.append(foods_list_div)
+            
+            let quantity_new = document.createElement('input');
+            quantity_new.name = "quantity[]";
+            quantity_new.type = "text"
+            quantity_new.id = "quantity_id" + count_food
+            quantity_new.className = "w-100"
+            let div_quantity = document.createElement("div")
+            div_quantity.className = "col-xl-3"
+            div_quantity.append(quantity_new);
+            div.append(div_quantity)
+            let delete_btn = document.createElement("button");
+            //delete_btn.innerHTML = "材料" + count_food + "を削除";
+            delete_btn.innerHTML = "削除";
+            delete_btn.id = "delete" + count_food;
+            delete_btn.type = "button";
+            
+            
+            let delete_btn_div = document.createElement("div")
+            delete_btn_div.className = "col-xl-2"
+            delete_btn_div.append(delete_btn)
+            delete_btn.addEventListener("click", event => {
+                //alert(event.target.id)
+                delete_count = parseInt(event.target.id.replace("delete",""));
+                
+                
+                //alert(div_name);
+                div_name = document.getElementById("food" + delete_count)
+                //alert(div_name);
+                
+
+                div_name.remove()
+                //alert(delete_count)
+                //alert(count_food)
+                for(let a = delete_count; a <= count_food; a ++ ){
+                    //alert(parseInt(a) + 1);
+                    let big_num = parseInt(a) + 1;
+                    let small_num = parseInt(a) - 1;
+                    
+                    //alert("wa");
+                    
+                    let replace_label = document.getElementById("foods_label" + big_num);
+                    if (!replace_label){
+                        continue
+                    }
+                    //alert(replace_label);
+                    replace_label.innerHTML = a + ".";
+                    replace_label.htmlFor = "foods" + a;
+                    replace_label.id = "foods_label" + a;
+                    //alert("wa");
+                    
+                    let replace_div = document.getElementById("food" + big_num)
+                    replace_div.id = "food" + a;
+
+                    let replace_input_food = document.getElementById("foods" + big_num);
+                    replace_input_food.id = "foods" + a;
+                    
+
+                    let replace_quantity = document.getElementById("quantity_id" + big_num);
+                    replace_quantity.id = "quantity_id" + a;
+
+                    let replace_btn = document.getElementById("delete" + big_num)
+                    //delete_btn.innerHTML = "材料" + a + "を削除";
+                    replace_btn.innerHTML = "削除";
+                    replace_btn.id = "delete" + a;
+                    
+
+                    
+                }
+
+                count_food = count_food - 1;
+            });
+            div.append(delete_btn_div);
+            bigFoodDiv.append(div);
+        });
+
+        document.getElementById("add_process").addEventListener("click", function() {
+            process_count = process_count + 1;
+
+            var div_process = document.createElement('div');
+            div_process.className = "process_add_class row align-items-end";
+            div_process.id = "process_div" + process_count;
+
+
+            var div_process_small = document.createElement("div");
+            div_process_small.className = "col-xl-10"
+
+            let process_label = document.createElement("label");
+            process_label.setAttribute('for', "process_text" + process_count);
+            process_label.id = "process_label" + process_count; 
+            process_label.className = ""
+            process_label.textContent  = process_count + ".";
+
+
+            var bigProcess = document.getElementById("process");
+
+            let add_process_list = document.createElement("textarea");
+            add_process_list.id = "process_text" + process_count;
+            add_process_list.className = "w-100"
+            add_process_list.name = "process_text[]";
+
+            var div_delete_process_btn = document.createElement("div");
+            div_delete_process_btn.className = "col-xl-2"
+
+            let delete_process_btn = document.createElement("button");
+            //delete_process_btn.innerHTML = "作り方" + process_count + "を削除";
+            delete_process_btn.innerHTML = "削除";
+            delete_process_btn.id = "process_delete" + process_count;
+            delete_process_btn.type = "button";
+            delete_process_btn.addEventListener("click", event => {
+                //alert(event.target.id)
+                let delete_process_count = parseInt(event.target.id.replace("process_delete",""));
+                
+                let div_name = document.getElementById("process_div" + delete_process_count)
+                //alert("process_div" + delete_process_count)
+                div_name.remove()
+                for(let a = delete_process_count; a <= process_count; a ++ ){
+                    //alert(parseInt(a) + 1);
+                    let big_num = parseInt(a) + 1;
+                    let small_num = parseInt(a) - 1;
+
+                    let div_name = document.getElementById("process_div" + big_num);
+                    if (!div_name){
+                        continue
+                    }
+                    div_name.id = "process_div" + a;
+
+                    let textarea_id = document.getElementById("process_text" + big_num);
+                    textarea_id.id = "process_text" + a;
+
+                    let delete_btn = document.getElementById("process_delete" + big_num);
+                    delete_btn.id = "process_delete" + a;
+                    //delete_btn.innerHTML = "作り方" + a + "を削除"
+                    delete_btn.innerHTML = "削除"
+
+
+                    let replace_label = document.getElementById("process_label" + big_num);
+                    replace_label.id = "process_label" + a; 
+                    replace_label.textContent  = a + ".";
+                    replace_label.htmlFor = "process_text" + a;
+
+                    
+                }
+
+                process_count = process_count - 1;
+            });
+
+            
+            div_process_small.append(process_label)
+            div_process_small.append(add_process_list);
+            div_process.append(div_process_small)
+            div_delete_process_btn.append(delete_process_btn)
+            div_process.append(div_delete_process_btn);
+            
+            bigProcess.append(div_process);
+        });
+        //https://teratail.com/questions/342874
+        //↑おすすめ、ガチわかりやすい
+        -->
+
+{% endblock %}
